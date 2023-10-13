@@ -21,6 +21,8 @@ Connect-Pfa2Array -Endpoint $endpoint -Credential $cred
 if(-not (Get-Module PureStoragePowerShellSDK2 -ListAvailable)){
     Install-Module PureStoragePowerShellSDK2 -Scope CurrentUser -Force
     }
+
+
 # Import the Pure Storage PowerShellSDK2 - always required
 Import-Module PureStoragePowerShellSDK2
 
@@ -40,7 +42,11 @@ foreach ($pod in $pods){
     new-Pfa2pod -name $pod
 }
 
+# Create 10 protection grous
+#TBD
 
+# Add 10 volumes to 10 protection groups
+# TBD
 
 # destroy 10 volumes
 $volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9"
