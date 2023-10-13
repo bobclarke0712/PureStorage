@@ -102,6 +102,44 @@ foreach ($pod in $pods){
 Remove-Pfa2pod -name $pod -Eradicate -eradicateContents:$true -confirm:$false
 }
 
+# Promote a pod
+$pod = "pod1"
+Update-Pfa2Pod -Name $pod -RequestedPromotionState "promoted"
+Get-Pfa2Pod -Name $pod
+do {
+    Write-Host "Waiting for $Pod Promotion"
+    Start-Sleep -Milliseconds 500
+    $test = Get-Pfa2Pod -Name $pod
+} while ($test.PromotionStatus -ne "promoted")
+
+# Demote a pod
+$pod = "pod1"
+Update-Pfa2Pod -Name $pod -RequestedPromotionState "demoted"
+Get-Pfa2Pod -Name $pod
+do {
+    Write-Host "Waiting for " $pod " Demotion"
+    Start-Sleep -Milliseconds 500
+    $test = Get-Pfa2Pod -Name $pod
+} while ($test.PromotionStatus -ne "demoted")
+
+# Flip promoted status (if promoted-demote, if demoted-promote)
+$pod = "pod1"
+if (((Get-Pfa2Pod -Name $pod).PromotionStatus) -eq "promoted"){
+    Update-Pfa2Pod -Name $pod -RequestedPromotionState "demoted"
+    do {
+        Write-Host "Waiting for " $pod " Demotion"
+        Start-Sleep -Milliseconds 500
+        $test = Get-Pfa2Pod -Name $pod
+    } while ($test.PromotionStatus -ne "demoted")
+}else{
+    Update-Pfa2Pod -Name $pod -RequestedPromotionState "promoted"
+        do {
+            Write-Host "Waiting for $Pod Promotion"
+            Start-Sleep -Milliseconds 500
+            $test = Get-Pfa2Pod -Name $pod
+        } while ($test.PromotionStatus -ne "promoted")
+    }
+
 #########################################################################################
 # Create 10 protection groups
 $pgs = "pg0","pg1", "pg2", "pg3", "pg4", "pg5", "pg6", "pg7", "pg8", "pg9"
