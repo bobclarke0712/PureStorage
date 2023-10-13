@@ -14,7 +14,7 @@ $endpoint = "flasharray.testdrive.local"
 # connect to array - always required. Use ONE of the next two lines based on your needs
 $Cred = New-Object System.Management.Automation.PSCredential ($username, $password) # non-interactive LESS SECURE - must be used with the two lines above where comments end in " - use get-credential instead"
 $cred = Get-Credential -Message "Enter credentials for Pure Storage Array:" # interactive MORE SECURE
-Connect-Pfa2Array -Endpoint $endpoint -Credential $cred
+Connect-Pfa2Array -Endpoint $endpoint -Credential $cred -IgnoreCertificateError
 
 
 # Check to see if Pure Storage SDK is installed, if not install it.
@@ -43,7 +43,23 @@ foreach ($pod in $pods){
 }
 
 # Create 10 protection grous
-#TBD
+$pgs = "pg0","pg1", "pg2", "pg3", "pg4", "pg5", "pg6", "pg7", "pg8", "pg9"
+foreach ($pg in $pgs){
+    New-Pfa2ProtectionGroup -name $pg
+}
+
+# Destroy 10 protection grous
+$pgs = "pg0","pg1", "pg2", "pg3", "pg4", "pg5", "pg6", "pg7", "pg8", "pg9"
+foreach ($pg in $pgs){
+    Update-Pfa2ProtectionGroup -name $pg -Destroyed:$True
+}
+
+# Eradicate 10 protection grous
+$pgs = "pg0","pg1", "pg2", "pg3", "pg4", "pg5", "pg6", "pg7", "pg8", "pg9"
+foreach ($pg in $pgs){
+    Remove-Pfa2ProtectionGroup -name $pg -Eradicate -Confirm:$false
+}
+
 
 # Add 10 volumes to 10 protection groups
 # TBD
