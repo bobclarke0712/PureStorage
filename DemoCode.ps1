@@ -61,6 +61,22 @@ foreach ($pg in $pgs){
 }
 
 
+# Create 10 hosts
+$PureHosts = "host0","host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9"
+foreach ($PureHost in $PureHosts){
+    New-Pfa2Host -name $PureHost -Personality "esxi" -ChapHostUser "pureuser" -ChapHostPassword "pureuser"
+}
+
+
+# Delete 10 hosts -  Destroy and Eradicate functionality doesn't exist on hosts
+$PureHosts = "host0","host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9"
+foreach ($PureHost in $PureHosts){
+    Remove-Pfa2Host -name $PureHost 
+}
+
+
+
+
 # Add 10 volumes to 10 protection groups
 # TBD
 
