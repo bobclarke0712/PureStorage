@@ -6,12 +6,13 @@
 
 # Set up default variables if required
 $username = "pureuser" # not recomended unless script MUST be non interactive - use get-credential instead
-$password = ConvertTo-SecureString "pureuser" -AsPlainText -Force # not recomended unless script MUST be non interactive - use get-credential instead
+$pass = "pureuser" # not recomended unless script MUST be non interactive - use get-credential instead
+$password = ConvertTo-SecureString $pass -AsPlainText -Force # not recomended unless script MUST be non interactive - use get-credential instead
 $endpoint = "flasharray.testdrive.local"
 
 
-# connect to array - always required. Use one of the next two lines based on your needs
-$Cred = New-Object System.Management.Automation.PSCredential ($username, $password) # non-interactive LESS SECURE
+# connect to array - always required. Use ONE of the next two lines based on your needs
+$Cred = New-Object System.Management.Automation.PSCredential ($username, $password) # non-interactive LESS SECURE - must be used with the two lines above where comments end in " - use get-credential instead"
 $cred = Get-Credential -Message "Enter credentials for Pure Storage Array:" # interactive MORE SECURE
 Connect-Pfa2Array -Endpoint $endpoint -Credential $cred
 
