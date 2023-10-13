@@ -91,7 +91,7 @@ foreach ($pg in $pgs){
 #########################################################################################
 # Add 10 existing volumes into a new ProtectionGroup
 $volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" # These volumes must exist, use the code above to create them if they don't.
-New-Pfa2ProtectionGroup -name "PG-Example"
+New-Pfa2ProtectionGroup -name "PG-Example" # to add existing volumes to an existing Protection Group simply use the command Get-Pfa2ProtectionGroup in this line instead. 
 foreach ($volume in $volumes){
     New-Pfa2ProtectionGroupVolume -GroupName "PG-Example" -MemberName $volume
 }
@@ -117,12 +117,9 @@ foreach ($PureHost in $PureHosts){
 }
 
 #########################################################################################
-# Add 10 volumes to 10 protection groups
-# TBD
-
-#########################################################################################
 # Check to see if SafeMode is enabled
-#TODO
+# For PG based SafeMode
+(Get-Pfa2ProtectionGroup -name "pgroup-auto").retentionlock
 
 #########################################################################################
 get-command -module PureStoragePowerShellSDK2 | select-string -pattern "pod"   # Useful for finding commands relating to certain objects on the array
