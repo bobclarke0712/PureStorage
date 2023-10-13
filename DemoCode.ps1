@@ -120,6 +120,8 @@ foreach ($PureHost in $PureHosts){
 # Check to see if SafeMode is enabled
 # For PG based SafeMode
 (Get-Pfa2ProtectionGroup -name "pgroup-auto").retentionlock
+# For array wide Safemode
+# TBD
 
 #########################################################################################
 get-command -module PureStoragePowerShellSDK2 | select-string -pattern "pod"   # Useful for finding commands relating to certain objects on the array
