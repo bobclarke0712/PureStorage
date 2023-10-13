@@ -52,6 +52,39 @@ foreach ($volume in $volumes){
     Remove-Pfa2Volume -Name $volume -Eradicate -Confirm:$false
 }
 #########################################################################################
+# Create a snapshot
+$volume = "BobVol"
+New-Pfa2VolumeSnapshot -SourceName $volume -Suffix "FromScript"
+
+# Destroy Snapshot
+$volume = $volume + ".FromScript"
+Update-Pfa2VolumeSnapshot -Name $volume  -Destroyed:$true
+
+# Eradicate Snapshot
+$volume = $volume + ".FromScript"
+Remove-Pfa2VolumeSnapshot -Name $volume -Eradicate -Confirm:$false
+
+# Create a snapshot on multiple volumes
+$volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" 
+foreach ($volume in $volumes){
+    New-Pfa2VolumeSnapshot -SourceName $volume -Suffix "FromScript"
+}
+
+# Destroy SnapShots on multiple volumes
+$volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" 
+foreach ($volume in $volumes){
+    $volumename = $volume + ".FromScript"
+    Update-Pfa2VolumeSnapshot -Name $volumename  -Destroyed:$True 
+}
+
+# Eradicate SnapShots on multiple volumes
+$volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" 
+foreach ($volume in $volumes){
+    $volumename = $volume + ".FromScript"
+    Remove-Pfa2VolumeSnapshot -Name $volumename  -Eradicate -Confirm:$false 
+}
+
+#########################################################################################
 # Create 10 pods
 $pods = "pod0","pod1", "pod2", "pod3", "pod4", "pod5", "pod6", "pod7", "pod8", "pod9"
 foreach ($pod in $pods){
@@ -120,6 +153,7 @@ foreach ($PureHost in $PureHosts){
 # Check to see if SafeMode is enabled
 # For PG based SafeMode
 (Get-Pfa2ProtectionGroup -name "pgroup-auto").retentionlock
+# Returns "ratcheted" or "unlocked"
 # For array wide Safemode
 # TBD
 
