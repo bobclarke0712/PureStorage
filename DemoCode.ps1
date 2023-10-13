@@ -4,6 +4,8 @@
 # Added several commonly used code snippets that can be put together to more easily write your own automations
 
 
+# ------------------------*** SETUP ***-------------------------------
+
 # Set up default variables if required
 $username = "pureuser" # not recomended unless script MUST be non interactive - use get-credential instead
 $pass = "pureuser" # not recomended unless script MUST be non interactive - use get-credential instead
@@ -17,7 +19,7 @@ $cred = Get-Credential -Message "Enter credentials for Pure Storage Array:" # in
 Connect-Pfa2Array -Endpoint $endpoint -Credential $cred -IgnoreCertificateError
 
 
-# Check to see if Pure Storage SDK is installed, if not install it.
+# Check to see if Pure Storage SDK is installed, if not install it. - good to include this code
 if(-not (Get-Module PureStoragePowerShellSDK2 -ListAvailable)){
     Install-Module PureStoragePowerShellSDK2 -Scope CurrentUser -Force
     }
@@ -26,59 +28,17 @@ if(-not (Get-Module PureStoragePowerShellSDK2 -ListAvailable)){
 # Import the Pure Storage PowerShellSDK2 - always required
 Import-Module PureStoragePowerShellSDK2
 
+# ------------------------*** EXAMPLES ***-------------------------------
 
 
+#########################################################################################
 # Create 10 volumes
 $volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9"
 $size = 10995116277760 # 10TB (Int64 in bytes)
+$size = 10737418240    # 10GB (Int64 in bytes) 
 foreach ($volume in $volumes){
     new-Pfa2Volume -name $volume -Provisioned $size
 }
-
-
-# Create 10 pods
-$pods = "pod0","pod1", "pod2", "pod3", "pod4", "pod5", "pod6", "pod7", "pod8", "pod9"
-foreach ($pod in $pods){
-    new-Pfa2pod -name $pod
-}
-
-# Create 10 protection grous
-$pgs = "pg0","pg1", "pg2", "pg3", "pg4", "pg5", "pg6", "pg7", "pg8", "pg9"
-foreach ($pg in $pgs){
-    New-Pfa2ProtectionGroup -name $pg
-}
-
-# Destroy 10 protection grous
-$pgs = "pg0","pg1", "pg2", "pg3", "pg4", "pg5", "pg6", "pg7", "pg8", "pg9"
-foreach ($pg in $pgs){
-    Update-Pfa2ProtectionGroup -name $pg -Destroyed:$True
-}
-
-# Eradicate 10 protection grous
-$pgs = "pg0","pg1", "pg2", "pg3", "pg4", "pg5", "pg6", "pg7", "pg8", "pg9"
-foreach ($pg in $pgs){
-    Remove-Pfa2ProtectionGroup -name $pg -Eradicate -Confirm:$false
-}
-
-
-# Create 10 hosts
-$PureHosts = "host0","host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9"
-foreach ($PureHost in $PureHosts){
-    New-Pfa2Host -name $PureHost -Personality "esxi" -ChapHostUser "pureuser" -ChapHostPassword "pureuser"
-}
-
-
-# Delete 10 hosts -  Destroy and Eradicate functionality doesn't exist on hosts
-$PureHosts = "host0","host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9"
-foreach ($PureHost in $PureHosts){
-    Remove-Pfa2Host -name $PureHost 
-}
-
-
-
-
-# Add 10 volumes to 10 protection groups
-# TBD
 
 # destroy 10 volumes
 $volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9"
@@ -91,22 +51,78 @@ $volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8"
 foreach ($volume in $volumes){
     Remove-Pfa2Volume -Name $volume -Eradicate -Confirm:$false
 }
+#########################################################################################
+# Create 10 pods
+$pods = "pod0","pod1", "pod2", "pod3", "pod4", "pod5", "pod6", "pod7", "pod8", "pod9"
+foreach ($pod in $pods){
+    new-Pfa2pod -name $pod
+}
 
 # Destroy 10 pods
 $pods = "pod0","pod1", "pod2", "pod3", "pod4", "pod5", "pod6", "pod7", "pod8", "pod9"
-
-# Check to see if SafeMode is enabled
-#TODO
-
-# Destroy the pods
 foreach ($pod in $pods){
     Update-Pfa2Pod -name $pod -DestroyContents $True -Destroyed $True
 }
-
 
 # Eradicate the pods
 foreach ($pod in $pods){
 Remove-Pfa2pod -name $pod -Eradicate -eradicateContents:$true -confirm:$false
 }
 
+#########################################################################################
+# Create 10 protection groups
+$pgs = "pg0","pg1", "pg2", "pg3", "pg4", "pg5", "pg6", "pg7", "pg8", "pg9"
+foreach ($pg in $pgs){
+    New-Pfa2ProtectionGroup -name $pg
+}
+
+# Destroy 10 protection groups
+$pgs = "pg0","pg1", "pg2", "pg3", "pg4", "pg5", "pg6", "pg7", "pg8", "pg9"
+foreach ($pg in $pgs){
+    Update-Pfa2ProtectionGroup -name $pg -Destroyed:$True
+}
+
+# Eradicate 10 protection groups
+$pgs = "pg0","pg1", "pg2", "pg3", "pg4", "pg5", "pg6", "pg7", "pg8", "pg9"
+foreach ($pg in $pgs){
+    Remove-Pfa2ProtectionGroup -name $pg -Eradicate -Confirm:$false
+}
+
+#########################################################################################
+# Add 10 existing volumes into a new ProtectionGroup
+$volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" # These volumes must exist, use the code above to create them if they don't.
+New-Pfa2ProtectionGroup -name "PG-Example"
+foreach ($volume in $volumes){
+    New-Pfa2ProtectionGroupVolume -GroupName "PG-Example" -MemberName $volume
+}
+
+#########################################################################################
+# Remove 10 existing volumes from a ProtectionGroup
+$volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" # These volumes must exist, use the code above to create them if they don't.
+foreach ($volume in $volumes){
+    Remove-Pfa2ProtectionGroupVolume -GroupName "PG-Example" -MemberName $volume
+}
+
+#########################################################################################
+# Create 10 hosts
+$PureHosts = "host0","host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9"
+foreach ($PureHost in $PureHosts){
+    New-Pfa2Host -name $PureHost -Personality "esxi" -ChapHostUser "pureuser" -ChapHostPassword "pureuser"
+}
+
+# Delete 10 hosts -  Destroy and Eradicate functionality doesn't exist on hosts
+$PureHosts = "host0","host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9"
+foreach ($PureHost in $PureHosts){
+    Remove-Pfa2Host -name $PureHost 
+}
+
+#########################################################################################
+# Add 10 volumes to 10 protection groups
+# TBD
+
+#########################################################################################
+# Check to see if SafeMode is enabled
+#TODO
+
+#########################################################################################
 get-command -module PureStoragePowerShellSDK2 | select-string -pattern "pod"   # Useful for finding commands relating to certain objects on the array
