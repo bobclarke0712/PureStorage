@@ -19,7 +19,7 @@ $cred = Get-Credential -Message "Enter credentials for Pure Storage Array:" # in
 Connect-Pfa2Array -Endpoint $endpoint -Credential $cred -IgnoreCertificateError
 
 
-# Check to see if Pure Storage SDK is installed, if not install it. - good to include this code
+# Check to see if Pure Storage SDK is installed, if not, install it. - good to include this code
 if(-not (Get-Module PureStoragePowerShellSDK2 -ListAvailable)){
     Install-Module PureStoragePowerShellSDK2 -Scope CurrentUser -Force
     }
@@ -31,7 +31,7 @@ Import-Module PureStoragePowerShellSDK2
 # ------------------------*** EXAMPLES ***-------------------------------
 
 
-#########################################################################################
+######################################## Volumes #################################################
 # Create 10 volumes
 $volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9"
 $size = 10995116277760 # 10TB (Int64 in bytes)
@@ -51,7 +51,7 @@ $volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8"
 foreach ($volume in $volumes){
     Remove-Pfa2Volume -Name $volume -Eradicate -Confirm:$false
 }
-#########################################################################################
+######################################## SnapShots #################################################
 # Create a snapshot
 $volume = "BobVol"
 New-Pfa2VolumeSnapshot -SourceName $volume -Suffix "FromScript"
@@ -84,7 +84,7 @@ foreach ($volume in $volumes){
     Remove-Pfa2VolumeSnapshot -Name $volumename  -Eradicate -Confirm:$false 
 }
 
-#########################################################################################
+########################################## Pods ###############################################
 # Create 10 pods
 $pods = "pod0","pod1", "pod2", "pod3", "pod4", "pod5", "pod6", "pod7", "pod8", "pod9"
 foreach ($pod in $pods){
@@ -140,7 +140,7 @@ if (((Get-Pfa2Pod -Name $pod).PromotionStatus) -eq "promoted"){
         } while ($test.PromotionStatus -ne "promoted")
     }
 
-#########################################################################################
+########################################## Protection Groups ###############################################
 # Create 10 protection groups
 $pgs = "pg0","pg1", "pg2", "pg3", "pg4", "pg5", "pg6", "pg7", "pg8", "pg9"
 foreach ($pg in $pgs){
@@ -159,7 +159,6 @@ foreach ($pg in $pgs){
     Remove-Pfa2ProtectionGroup -name $pg -Eradicate -Confirm:$false
 }
 
-#########################################################################################
 # Add 10 existing volumes into a new ProtectionGroup
 $volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" # These volumes must exist, use the code above to create them if they don't.
 New-Pfa2ProtectionGroup -name "PG-Example" # to add existing volumes to an existing Protection Group simply use the command Get-Pfa2ProtectionGroup in this line instead. 
@@ -167,14 +166,13 @@ foreach ($volume in $volumes){
     New-Pfa2ProtectionGroupVolume -GroupName "PG-Example" -MemberName $volume
 }
 
-#########################################################################################
 # Remove 10 existing volumes from a ProtectionGroup
 $volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" # These volumes must exist, use the code above to create them if they don't.
 foreach ($volume in $volumes){
     Remove-Pfa2ProtectionGroupVolume -GroupName "PG-Example" -MemberName $volume
 }
 
-#########################################################################################
+######################################## Hosts #################################################
 # Create 10 hosts
 $PureHosts = "host0","host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9"
 foreach ($PureHost in $PureHosts){
@@ -187,7 +185,7 @@ foreach ($PureHost in $PureHosts){
     Remove-Pfa2Host -name $PureHost 
 }
 
-#########################################################################################
+######################################## SafeMode #################################################
 # Check to see if SafeMode is enabled
 # For PG based SafeMode
 (Get-Pfa2ProtectionGroup -name "pgroup-auto").retentionlock
@@ -195,5 +193,5 @@ foreach ($PureHost in $PureHosts){
 # For array wide Safemode
 # TBD
 
-#########################################################################################
+########################################## Find Commands###############################################
 get-command -module PureStoragePowerShellSDK2 | select-string -pattern "pod"   # Useful for finding commands relating to certain objects on the array
