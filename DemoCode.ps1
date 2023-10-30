@@ -51,6 +51,21 @@ $volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8"
 foreach ($volume in $volumes){
     Remove-Pfa2Volume -Name $volume -Eradicate -Confirm:$false
 }
+
+######################################## Host-Volume associations ##################################
+
+# See associations
+Get-Pfa2Connection 
+
+# connect volume to host
+New-Pfa2Connection -VolumeNames 'SDKv2-Sample-1' -HostNames 'SDKv2-host'
+
+
+# Remove volume from host
+Remove-Pfa2Connection -Array $FlashArray -VolumeNames 'SDKv2-Sample-1' -HostNames 'SDKv2-host'
+
+
+
 ######################################## SnapShots #################################################
 # Create a snapshot
 $volume = "BobVol"
