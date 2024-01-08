@@ -10,7 +10,7 @@
 $username = "pureuser" # not recomended unless script MUST be non interactive - use get-credential instead
 $pass = "pureuser" # not recomended unless script MUST be non interactive - use get-credential instead
 $password = ConvertTo-SecureString $pass -AsPlainText -Force # not recomended unless script MUST be non interactive - use get-credential instead
-$endpoint = "flasharray.testdrive.local"
+$endpoint = "flasharray1.testdrive.local"
 
 
 # connect to array - always required. Use ONE of the next two lines based on your needs
@@ -68,16 +68,16 @@ Remove-Pfa2Connection -Array $FlashArray -VolumeNames 'SDKv2-Sample-1' -HostName
 
 ######################################## SnapShots #################################################
 # Create a snapshot
-$volume = "BobVol"
+$volume = "WindowsVol1"
 New-Pfa2VolumeSnapshot -SourceName $volume -Suffix "FromScript"
 
 # Destroy Snapshot
-$volume = $volume + ".FromScript"
-Update-Pfa2VolumeSnapshot -Name $volume  -Destroyed:$true
+$DestroyVolume = $volume + ".FromScript"
+Update-Pfa2VolumeSnapshot -Name $DestroyVolume  -Destroyed:$true
 
 # Eradicate Snapshot
-$volume = $volume + ".FromScript"
-Remove-Pfa2VolumeSnapshot -Name $volume -Eradicate -Confirm:$false
+$EradicateVolume = $volume + ".FromScript"
+Remove-Pfa2VolumeSnapshot -Name $EradicateVolume -Eradicate -Confirm:$false
 
 # Create a snapshot on multiple volumes
 $volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" 
@@ -86,15 +86,15 @@ foreach ($volume in $volumes){
 }
 
 # Destroy SnapShots on multiple volumes
-$volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" 
-foreach ($volume in $volumes){
+$DestroyVolumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" 
+foreach ($volume in $DestroyVolumes){
     $volumename = $volume + ".FromScript"
     Update-Pfa2VolumeSnapshot -Name $volumename  -Destroyed:$True 
 }
 
 # Eradicate SnapShots on multiple volumes
-$volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" 
-foreach ($volume in $volumes){
+$EradicateVolumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" 
+foreach ($volume in $EradicateVolumes){
     $volumename = $volume + ".FromScript"
     Remove-Pfa2VolumeSnapshot -Name $volumename  -Eradicate -Confirm:$false 
 }
@@ -113,6 +113,7 @@ foreach ($pod in $pods){
 }
 
 # Eradicate the pods
+$pods = "pod0","pod1", "pod2", "pod3", "pod4", "pod5", "pod6", "pod7", "pod8", "pod9"
 foreach ($pod in $pods){
 Remove-Pfa2pod -name $pod -Eradicate -eradicateContents:$true -confirm:$false
 }
@@ -203,8 +204,14 @@ foreach ($PureHost in $PureHosts){
 ######################################## SafeMode #################################################
 # Check to see if SafeMode is enabled
 # For PG based SafeMode
-(Get-Pfa2ProtectionGroup -name "pgroup-auto").retentionlock
-# Returns "ratcheted" or "unlocked"
+
+# TBD this try catch block isn't catching the exception
+try {
+    Get-Pfa2ProtectionGroup -name "pgroup-auto"
+}catch{
+    write-host "pgroup-auto doesn't exist"
+}
+# Returns "ratcheted", "unlocked", or "pgroup-auto doesn't exist"
 # For array wide Safemode
 # TBD
 
