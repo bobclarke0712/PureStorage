@@ -7,18 +7,6 @@
 
 # ------------------------*** SETUP ***-------------------------------
 
-# Set up default variables if required
-$username = "pureuser" # not recomended unless script MUST be non interactive - use get-credential instead
-$pass = "pureuser" # not recomended unless script MUST be non interactive - use get-credential instead
-$password = ConvertTo-SecureString $pass -AsPlainText -Force # not recomended unless script MUST be non interactive - use get-credential instead
-$endpoint = "flasharray1.testdrive.local"
-
-
-# connect to array - always required. Use ONE of the next two lines based on your needs
-$Cred = New-Object System.Management.Automation.PSCredential ($username, $password) # non-interactive LESS SECURE - must be used with the two lines above where comments end in " - use get-credential instead"
-$cred = Get-Credential -Message "Enter credentials for Pure Storage Array:" # interactive MORE SECURE
-Connect-Pfa2Array -Endpoint $endpoint -Credential $cred -IgnoreCertificateError
-
 
 # Check to see if Pure Storage SDK is installed, if not, install it. - good to include this code
 if(-not (Get-Module PureStoragePowerShellSDK2 -ListAvailable)){
@@ -28,6 +16,21 @@ if(-not (Get-Module PureStoragePowerShellSDK2 -ListAvailable)){
 
 # Import the Pure Storage PowerShellSDK2 - always required
 Import-Module PureStoragePowerShellSDK2
+
+
+# Set up default variables if required
+$password = ConvertTo-SecureString $pass -AsPlainText -Force # not recomended unless script MUST be non interactive - use get-credential instead
+$username = "pureuser" # not recomended unless script MUST be non interactive - use get-credential instead
+$pass = "pureuser" # not recomended unless script MUST be non interactive - use get-credential instead
+$endpoint = "flasharray1.testdrive.local"
+
+
+# connect to array - always required. Use ONE of the next two lines based on your needs
+$cred = Get-Credential -Message "Enter credentials for Pure Storage Array:" # interactive MORE SECURE
+$cred = New-Object System.Management.Automation.PSCredential ($username, $password) # non-interactive LESS SECURE - must be used with the two lines above where comments end in " - use get-credential instead"
+
+Connect-Pfa2Array -Endpoint $endpoint -Credential $cred -IgnoreCertificateError
+
 
 # ------------------------*** EXAMPLES ***-------------------------------
 
