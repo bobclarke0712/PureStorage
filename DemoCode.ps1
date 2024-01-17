@@ -19,9 +19,10 @@ Import-Module PureStoragePowerShellSDK2
 
 
 # Set up default variables if required
-$password = ConvertTo-SecureString $pass -AsPlainText -Force # not recomended unless script MUST be non interactive - use get-credential instead
+
 $username = "pureuser" # not recomended unless script MUST be non interactive - use get-credential instead
 $pass = "pureuser" # not recomended unless script MUST be non interactive - use get-credential instead
+$password = ConvertTo-SecureString $pass -AsPlainText -Force # not recomended unless script MUST be non interactive - use get-credential instead
 $endpoint = "flasharray1.testdrive.local"
 
 
@@ -73,33 +74,37 @@ Remove-Pfa2Connection -Array $FlashArray -VolumeNames 'SDKv2-Sample-1' -HostName
 ######################################## SnapShots #################################################
 # Create a snapshot
 $volume = "WindowsVol1"
-New-Pfa2VolumeSnapshot -SourceName $volume -Suffix "FromScript"
+$suffix = ("FromScript-" + (get-date -format yy-MM-dd))
+New-Pfa2VolumeSnapshot -SourceName $volume -Suffix $suffix
 
 # Destroy Snapshot
-$DestroyVolume = $volume + ".FromScript"
+$DestroyVolume = $volume + "." + $suffix 
 Update-Pfa2VolumeSnapshot -Name $DestroyVolume  -Destroyed:$true
 
 # Eradicate Snapshot
-$EradicateVolume = $volume + ".FromScript"
+$EradicateVolume = $volume + "." + $suffix 
 Remove-Pfa2VolumeSnapshot -Name $EradicateVolume -Eradicate -Confirm:$false
 
 # Create a snapshot on multiple volumes
 $volumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" 
+$suffix = ("FromScript-" + (get-date -format yy-MM-dd))
 foreach ($volume in $volumes){
-    New-Pfa2VolumeSnapshot -SourceName $volume -Suffix "FromScript"
+    New-Pfa2VolumeSnapshot -SourceName $volume -Suffix $suffix
 }
 
 # Destroy SnapShots on multiple volumes
 $DestroyVolumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" 
+$suffix = ("FromScript-" + (get-date -format yy-MM-dd))
 foreach ($volume in $DestroyVolumes){
-    $volumename = $volume + ".FromScript"
+    $volumename = $volume + "." + $suffix 
     Update-Pfa2VolumeSnapshot -Name $volumename  -Destroyed:$True 
 }
 
 # Eradicate SnapShots on multiple volumes
 $EradicateVolumes = "vol0","vol1", "vol2", "vol3", "vol4", "vol5", "vol6", "vol7", "vol8", "vol9" 
+$suffix = ("FromScript-" + (get-date -format yy-MM-dd))
 foreach ($volume in $EradicateVolumes){
-    $volumename = $volume + ".FromScript"
+    $volumename = $volume + "." + $suffix 
     Remove-Pfa2VolumeSnapshot -Name $volumename  -Eradicate -Confirm:$false 
 }
 
