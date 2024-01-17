@@ -214,13 +214,13 @@ foreach ($PureHost in $PureHosts){
 # Check to see if SafeMode is enabled
 # For PG based SafeMode
 
-# TBD this try catch block isn't catching the exception
-try {
-    Get-Pfa2ProtectionGroup -name "pgroup-auto"
-}catch{
-    write-host "pgroup-auto doesn't exist"
-}
-# Returns "ratcheted", "unlocked", or "pgroup-auto doesn't exist"
+# Ensure pgroup-auto exists before running this code
+
+Get-Pfa2ProtectionGroup -name "pgroup-auto"
+
+
+
+# Returns "ratcheted", "unlocked"
 # For array wide Safemode
 # TBD
 
