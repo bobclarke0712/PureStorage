@@ -1,7 +1,8 @@
 #####
 # Work in progress
-
-#Autor Ned Egan -/5/1/2024-
+# From repo: https://github.com/nedegan/PureStorage
+# Author Ned Egan -/5/1/2024-
+# Co-Author Bob Clarke
 #####
 $vcenter  = "VC1.ne-lab.local"
 $vcuser   = "administrator@puremagic.local"
