@@ -1,6 +1,6 @@
 #####
 # Work in progress
-# From repo: https://github.com/nedegan/PureStorage
+# Ned's repo: https://github.com/nedegan/PureStorage
 # Author Ned Egan -/5/1/2024-
 # Co-Author Bob Clarke
 #####
@@ -20,12 +20,7 @@ Import-Module vmware.powercli
 # Connect to vCenter
 Connect-VIserver -Force $vcenter -user $vcuser -password $vcpass
 # Promote the DR Site Pod
-# $promote = "purepod promote $podname"
-# New-PfaCLICommand -EndPoint $endpoint -CommandText $promote -UserName $username -Password (ConvertTo-SecureString -AsPlainText $password -Force)
-# Invoke-Pfa2CLICommand -Credential $cred -EndPoint $endpoint -CommandText $promote
-# or the following:
-# $RemotePod = Get-Pfa2Pod -Name $podname
-# Update-Pfa2Pod -Array $TargetArray -Name $RemotePod.Name  -RequestedPromotionState "promoted"
+
 # From Jase: connect to target pod and promote it
 Connect-Pfa2Array -IgnoreCertificateError -Endpoint $endpoint -Credential $cred
 $ADRPOD = Get-Pfa2Pod -Name $podname
