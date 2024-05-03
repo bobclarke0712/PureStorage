@@ -1,8 +1,15 @@
 #####
+# **********************************************************Disclaimer****************************************************************************************
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+
 # Work in progress
 # Ned's repo: https://github.com/nedegan/PureStorage
-# Author Ned Egan -/5/1/2024-
-# Co-Author Bob Clarke
+# Author Ned Egan negan@purestorage.com) -/5/1/2024-
+# Co-Author Bob Clarke (bclarke@purestorage.com)
 #####
 $vcenter  = "VC1.ne-lab.local"
 $vcuser   = "administrator@puremagic.local"
@@ -55,7 +62,7 @@ if ($Snaps.Count -gt 0) {
     Write-Host "No Snapshot volumes found"
     
 }
-# Added because rename did not take effect ##
+# Added because rename did not take effect right away ##
 Write-Host "Waiting for snapshots to animate"
 Start-Sleep -Milliseconds 3000
 # convert the short $dsname from above to the long "snap.name"
