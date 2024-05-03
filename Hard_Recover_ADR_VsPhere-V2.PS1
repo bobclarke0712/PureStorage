@@ -5,12 +5,14 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
+# This script is based on the API V1 script and has been updated to work with the Purity V2 API.
+# Link to V1 script can be found here: https://github.com/PureStorage-OpenConnect/VMware-Scripts/blob/master/HardRecoverActiveDRPodVsphere.ps1
 # Work in progress
 # Ned's repo: https://github.com/nedegan/PureStorage
 # Author Ned Egan negan@purestorage.com) -/5/1/2024-
 # Co-Author Bob Clarke (bclarke@purestorage.com)
 #####
+
 $vcenter  = "VC1.ne-lab.local"
 $vcuser   = "administrator@puremagic.local"
 $vcpass   = "P@ssword1"
