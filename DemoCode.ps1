@@ -8,7 +8,7 @@
 # ------------------------*** SETUP ***-------------------------------
 
 
-# Check to see if Pure Storage SDK is installed, if not, install it. - good to include this code
+# Check to see if Pure Storage SDK is installed, if not, install it. - good to include this code to be sure.
 if(-not (Get-Module PureStoragePowerShellSDK2 -ListAvailable)){
     Install-Module PureStoragePowerShellSDK2 -Scope CurrentUser -Force
     }
@@ -216,8 +216,12 @@ foreach ($PureHost in $PureHosts){
 
 # Ensure pgroup-auto exists before running this code
 
-Get-Pfa2ProtectionGroup -name "pgroup-auto"
-
+$pg = Get-Pfa2ProtectionGroup -name "pgroup-auto"
+If ($pg.RetentionLock -eq "ratcheted"){
+    Write-Host $pg.name  "is ratcheted"
+} Else{
+    Write-Host $pg.name  "is NOT ratcheted"
+}
 
 
 # Returns "ratcheted", "unlocked"
