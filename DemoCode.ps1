@@ -224,9 +224,10 @@ If ($pg.RetentionLock -eq "ratcheted"){
 }
 
 
-# Returns "ratcheted", "unlocked"
-# For array wide Safemode
+
+# ######################################## Array Wide Safemode ########################################
 # TBD
+# Returns "ratcheted", "unlocked"
 
 ########################################## Find Commands###############################################
 get-command -module PureStoragePowerShellSDK2 | select-string -pattern "pod"   # Useful for finding commands relating to certain objects on the array
