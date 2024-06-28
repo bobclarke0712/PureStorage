@@ -61,7 +61,7 @@ foreach ($volume in $volumes){
 # Create 10 hosts
 $PureHosts = "host0","host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9"
 foreach ($PureHost in $PureHosts){
-    New-Pfa2Host -name $PureHost -Personality "esxi" -ChapHostUser "pureuser" -ChapHostPassword "pureuser"
+    New-Pfa2Host -name $PureHost -Personality "esxi" # you can use embedded credentials by adding: -ChapHostUser "pureuser" -ChapHostPassword "pureuser"
 }
 
 # Delete 10 hosts -  Destroy and Eradicate functionality don't exist on hosts
