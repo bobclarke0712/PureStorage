@@ -87,3 +87,4 @@ foreach($Datastore in $Datastore) {
     New-VM -VMFilePath $SearchResult -VMHost $VMHost -Location $VMFolder -RunAsync -ErrorAction SilentlyContinue
    }
 }
+

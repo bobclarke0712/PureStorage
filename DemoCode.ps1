@@ -57,17 +57,30 @@ foreach ($volume in $volumes){
     Remove-Pfa2Volume -Name $volume -Eradicate -Confirm:$false
 }
 
+######################################## Hosts #################################################
+# Create 10 hosts
+$PureHosts = "host0","host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9"
+foreach ($PureHost in $PureHosts){
+    New-Pfa2Host -name $PureHost -Personality "esxi" -ChapHostUser "pureuser" -ChapHostPassword "pureuser"
+}
+
+# Delete 10 hosts -  Destroy and Eradicate functionality don't exist on hosts
+$PureHosts = "host0","host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9"
+foreach ($PureHost in $PureHosts){
+    Remove-Pfa2Host -name $PureHost 
+}
+
 ######################################## Host-Volume associations ##################################
 
 # See associations
 Get-Pfa2Connection 
 
 # connect volume to host
-New-Pfa2Connection -VolumeNames 'SDKv2-Sample-1' -HostNames 'SDKv2-host'
+New-Pfa2Connection -VolumeNames 'vol0' -HostNames 'host0'
 
 
 # Remove volume from host
-Remove-Pfa2Connection -Array $FlashArray -VolumeNames 'SDKv2-Sample-1' -HostNames 'SDKv2-host'
+Remove-Pfa2Connection -Array $FlashArray -VolumeNames 'vol0' -HostNames 'host0'
 
 
 
@@ -197,18 +210,6 @@ foreach ($volume in $volumes){
     Remove-Pfa2ProtectionGroupVolume -GroupName "PG-Example" -MemberName $volume
 }
 
-######################################## Hosts #################################################
-# Create 10 hosts
-$PureHosts = "host0","host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9"
-foreach ($PureHost in $PureHosts){
-    New-Pfa2Host -name $PureHost -Personality "esxi" -ChapHostUser "pureuser" -ChapHostPassword "pureuser"
-}
-
-# Delete 10 hosts -  Destroy and Eradicate functionality doesn't exist on hosts
-$PureHosts = "host0","host1", "host2", "host3", "host4", "host5", "host6", "host7", "host8", "host9"
-foreach ($PureHost in $PureHosts){
-    Remove-Pfa2Host -name $PureHost 
-}
 
 ######################################## SafeMode #################################################
 # Check to see if SafeMode is enabled
