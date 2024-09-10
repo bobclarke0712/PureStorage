@@ -79,7 +79,7 @@ Get-Pfa2Connection
 New-Pfa2Connection -VolumeNames 'vol0' -HostNames 'host0'
 
 # Connect volume to host and set LUN ID
-New-PfaHostVolumeConnection -VolumeName "YourVolumeName" -HostName "YourHostName" -Lun 10
+New-Pfa2Connection -VolumeName "YourVolumeName" -HostNames "YourHostName" -Lun 10
 
 # Remove volume from host
 Remove-Pfa2Connection -Array $FlashArray -VolumeNames 'vol0' -HostNames 'host0'
