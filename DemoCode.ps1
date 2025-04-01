@@ -212,6 +212,24 @@ foreach ($volume in $volumes){
     Remove-Pfa2ProtectionGroupVolume -GroupName "PG-Example" -MemberName $volume
 }
 
+# Tagging Volumes
+# Set tags on a single volume
+Set-Pfa2VolumeTagBatch -ResourceName "VMwareVol1" -TagKey "BillingCode" -TagValue "IDOT-3465"
+
+# Set tags on multiple volumes
+Set-Pfa2VolumeTagBatch -ResourceName "VMwareVol1", "WindowsVol1" -TagKey "BillingCode" -TagValue "IDOT-3465"
+
+# Set multiple tags on multiple volumes
+Set-Pfa2VolumeTagBatch -ResourceName "VMwareVol1", "WindowsVol1" -TagKey "BillingCode", "Department" -TagValue "IDOT-3465", "Road Department"
+
+
+# Retrieve tag from volume by name
+Get-Pfa2VolumeTag -ResourceName "VMwareVol1"
+# or to just display a single code
+$VolTags = Get-Pfa2VolumeTag -ResourceName "VMwareVol1"
+$VolTags.BillingCode
+
+
 
 ######################################## SafeMode #################################################
 # Check to see if SafeMode is enabled
