@@ -227,8 +227,11 @@ Set-Pfa2VolumeTagBatch -ResourceName "VMwareVol1", "WindowsVol1" -TagKey "Billin
 Get-Pfa2VolumeTag -ResourceName "VMwareVol1"
 # or to just display a single code
 $VolTags = Get-Pfa2VolumeTag -ResourceName "VMwareVol1"
-$VolTags.BillingCode
-
+$VolTags.value
+# Display keys and values of all tags
+foreach ($obj in $voltags) {
+    write-output ($obj.key + " = " + $obj.value)
+}
 
 
 ######################################## SafeMode #################################################
