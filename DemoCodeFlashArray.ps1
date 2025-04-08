@@ -1,9 +1,9 @@
 # Written by Bob Clarke 
 # Date: 10-12-2023
 # GitHub link:    https://github.com/bobclarke0712/PureStorage
-# Ver 1.1
+# Ver 1.2
 # Added several commonly used code snippets that can be put together to more easily write your own automations
-
+# Added volume tagging examples
 
 # ------------------------*** SETUP ***-------------------------------
 
