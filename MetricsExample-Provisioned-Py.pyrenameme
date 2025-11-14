@@ -1,0 +1,123 @@
+import json
+import os
+import requests
+import csv
+from datetime import datetime
+from pathlib import Path
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# ------------------- Configurable Parameters -------------------
+config_file = './config.json'
+output_file = './results.csv'
+log_output_location = os.path.expanduser('~/pure_logs/')
+
+# ------------------- Global Variables -------------------
+global_log = []
+log_file = ""
+
+# ------------------- Helper Functions -------------------
+
+def write_log(info, level='Informational'):
+    global global_log, log_file
+    run_time = datetime.now().isoformat()
+
+    color = {
+        'Informational': '\033[92m',  # Green
+        'Warning': '\033[93m',        # Yellow
+        'Critical': '\033[91m',       # Red
+        'Error': '\033[91m',          # Red
+        'Highlight': '\033[95m'       # Magenta
+    }.get(level, '\033[0m')
+
+    print(f"{color}{info}\033[0m")
+
+    log_entry = {
+        'DateTime': run_time,
+        'LogLevel': level,
+        'Information': info
+    }
+    global_log.append(log_entry)
+
+    with open(log_file, 'a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=log_entry.keys())
+        if f.tell() == 0:
+            writer.writeheader()
+        writer.writerow(log_entry)
+
+def connect_pure_array(array):
+    token = array['Token']
+    headers = {"api-token": token}
+    try:
+        if array['Type'] == 'FlashArray':
+            url = f"https://{array['Name']}/api/2.25/login"
+        elif array['Type'] == 'FlashBlade':
+            url = f"https://{array['Name']}/api/login"
+        else:
+            write_log(f"Invalid Type in config file for {array['Name']}", 'Critical')
+            return None
+
+        response = requests.post(url, headers=headers, verify=False)
+        response.raise_for_status()
+        x_auth_token = response.headers.get('x-auth-token')
+
+        return {"X-Auth-Token": x_auth_token}
+    except Exception as e:
+        write_log(f"Failed to connect to array {array['Name']}. Error: {str(e)}", 'Critical')
+        exit(1)
+
+# ------------------- Main Script -------------------
+
+try:
+    Path(log_output_location).mkdir(parents=True, exist_ok=True)
+except Exception as e:
+    print(f"Failed to create log directory: {e}")
+    exit(1)
+
+run_id = datetime.now().strftime('%m%d%y%H%M%S')
+log_file = os.path.join(log_output_location, f"{run_id}.txt")
+write_log(f"RunID is {run_id}", 'Highlight')
+
+write_log("Loading Config", 'Informational')
+try:
+    with open(config_file, 'r') as f:
+        config_data = json.load(f)
+except Exception as e:
+    write_log(f"Error loading config file: {e}", 'Critical')
+    exit(1)
+
+final_results = []
+
+for array in config_data.get('ArrayMapping', []):
+    write_log(f"Connecting to {array['Name']} ({array['Type']}) to gather metrics", 'Informational')
+    headers = connect_pure_array(array)
+
+    if array['Type'] == 'FlashArray':
+        url = f"https://{array['Name']}/api/2.25/volumes"
+        response = requests.get(url, headers=headers, verify=False)
+        volumes = response.json().get('items', [])
+        for volume in volumes:
+            final_results.append({
+                'ArrayName': array['Name'],
+                'ArrayType': array['Type'],
+                'VolumeName': volume['name'],
+                'SpaceProvisioned': volume['space']['total_provisioned']
+            })
+
+    elif array['Type'] == 'FlashBlade':
+        url = f"https://{array['Name']}/api/2.12/file-systems"
+        response = requests.get(url, headers=headers, verify=False)
+        filesystems = response.json().get('items', [])
+        for fs in filesystems:
+            final_results.append({
+                'ArrayName': array['Name'],
+                'ArrayType': array['Type'],
+                'VolumeName': fs['name'],
+                'SpaceProvisioned': fs['provisioned']
+            })
+
+# Write final results
+with open(output_file, 'w', newline='') as f:
+    writer = csv.DictWriter(f, fieldnames=final_results[0].keys())
+    writer.writeheader()
+    writer.writerows(final_results)

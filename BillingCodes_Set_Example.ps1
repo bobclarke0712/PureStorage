@@ -55,6 +55,7 @@ foreach ($volume in $volumes){
     $volume = new-Pfa2Volume -name $volume -Provisioned $size
 }
 Start-Sleep (5)
+
 foreach ($volume in $volumes){
     New-Pfa2Connection -HostName "Windows1" -VolumeName $volume
 }

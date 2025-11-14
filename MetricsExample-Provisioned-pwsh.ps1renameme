@@ -1,0 +1,233 @@
+
+
+
+param (
+    [Parameter(Mandatory = $false)]
+    $configFile = '.\config.json',
+    [Parameter(Mandatory = $false)]
+    $output = '.\results.csv',
+    [Parameter(Mandatory = $false)]
+    $logOutputLocation = 'C:\Temp\Log\'
+)
+Add-Type -TypeDefinition @"
+using System.Net.Http;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+
+public static class BypassCert {
+    public static void Ignore() {
+        HttpClientHandler handler = new HttpClientHandler();
+        handler.ServerCertificateCustomValidationCallback = 
+            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+    }
+}
+"@
+
+
+
+
+
+
+#region Functions
+
+function Write-PurePSSimpleLog {
+             
+    #----------------[ Parameter Configuration ]----------------------------------------------------
+    Param(
+        [parameter(Mandatory = $true)]
+        $logLevel,
+        [parameter(Mandatory = $true)]
+        $information
+    )
+     
+    #----------------[ Main Execution ]----------------------------------------------------
+    
+  
+    $runTime = Get-Date
+    if ($LogLevel -eq "informational") {
+        Write-Host $information -ForegroundColor green
+    }
+    if ($LogLevel -eq "Warning") {
+        Write-Host $information -ForegroundColor yellow
+    }
+    if (($LogLevel -eq "Critical") -or ($LogLevel -eq "error")) {
+        Write-Host $information -ForegroundColor red
+
+        #if ($migrationType -eq "VMWare") {
+        #    Disconnect-VMWareVCenters
+        #}
+    }
+    if ($LogLevel -eq "Highlight") {
+        Write-Host $information -ForegroundColor Magenta
+    }
+  
+  
+    #----------------[ CSV bits ]---------------------------------------------------- 
+         
+    $newObj = [PSCustomObject] @{
+        DateTime    = $runTime
+        LogLevel    = $logLevel
+        Information = $information
+    }
+          
+    $newObj | Export-Csv -Path $logfile -Append
+}
+
+Function Write-PurePSSimpleLog {
+    PARAM
+    (
+        [Parameter(Mandatory = $true, Position = 0)]
+        $Information,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("Informational", "Warning", "Critical", "Error", "Highlight")]
+        $LogLevel = "Informational"
+    )
+
+    $runTime = Get-Date
+
+    SWITCH ($LogLevel) {
+        "Informational" { Write-Host $information -ForegroundColor Green }
+        "Warning" { Write-Host $information -ForegroundColor Yellow }
+        "Critical" { Write-Host $information -ForegroundColor Red }
+        "Error" { Write-Host $information -ForegroundColor Red }
+        "Highlight" { Write-Host $information -ForegroundColor Magenta }
+    }
+
+    $Logitem = [PSCustomObject]@{
+        DateTime    = $runTime
+        LogLevel    = $logLevel
+        Information = $information
+    }
+
+    $Logitem | Export-Csv -Path $logfile -Append
+    $global:globalLog += $Logitem
+}
+
+function Connect-PurePSArray {
+             
+    #----------------[ Parameter Configuration ]----------------------------------------------------
+    Param(
+        [parameter(Mandatory = $true)]
+        $array    
+    )
+     
+    #----------------[ Main Execution ]----------------------------------------------------
+    
+    $plainAPIToken = $item.Token
+    # $arrayCreds = New-Object System.Management.Automation.PSCredential ($array.UserName, $restoredPass)
+
+    Write-PurePSSimpleLog -information "    We are connecting to Pure $($array.type)" -logLevel 'Informational'
+    try {
+        
+        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
+        $headers = @{
+            "api-token" = $plainAPIToken
+        }
+        if ($array.Type -eq 'FlashArray') {
+            $session = Invoke-WebRequest  -Method Post -Uri "https://$($array.name)/api/2.25/login" -Headers $headers -SkipCertificateCheck  #webrequest allows me to extract header, vs using Powershell session management
+        }
+        elseif($array.type -eq 'FlashBlade'){
+            $session = Invoke-WebRequest  -Method Post -Uri "https://$($array.name)/api/login" -Headers $headers -SkipCertificateCheck  #webrequest allows me to extract header, vs using Powershell session management
+         
+        }
+        else{
+            Write-PurePSSimpleLog -Information "Invalid Type in Config file for $($array.name)" -LogLevel 'Critical'
+        }
+        $xAuthToken = $session.headers.'x-auth-token'
+        $AuthHeaders = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+        $AuthHeaders.Add("X-Auth-Token", "$xAuthToken")
+    }
+    catch {
+        $errorMessage = $_.Exception.Message
+        Write-PurePSSimpleLog -information "We had trouble connecting to the Pure array. Error: $errorMessage" -logLevel 'critical'
+        exit 1
+    }
+    return $AuthHeaders
+}
+#endregion Functions
+
+#region Create RunID our log
+$global:globalLog = @()
+
+try {
+    If (!(Test-Path $logOutputLocation)) {
+        New-Item -ItemType Directory -Force -Path $logOutputLocation | Out-Null
+    }
+}
+catch {
+    $errorMessage = $_.Exception.Message
+    Write-Host "We had issues trying to create the directory for the log file. Error: $errormessage" -ForegroundColor red
+    exit 1
+}
+
+
+try {
+    $runID = (Get-Date).ToString('MMddyyhhmmss') #unique down to second of time ran.
+   
+    $logfile = $logOutputLocation + $runID + '.txt'
+
+
+    Write-PurePSSimpleLog -information "RunID is $runid" -logLevel 'Highlight'
+    Start-Sleep 5 #so executor can take note of runID
+}
+catch {
+    $errorMessage = $_.Exception.Message
+    Write-Host "We had issues trying to write to log file. Error: $errormessage" -ForegroundColor red
+    exit 1
+}
+#region Create RunID our log
+
+#region Load Config
+Write-PurePSSimpleLog "Loading Config" -logLevel 'Informational'
+try {
+    $configJSON = Get-Content $configFile | ConvertFrom-Json
+}
+catch {
+    $errorMessage = $_.Exception.Message
+    Write-PurePSSimpleLog "We had trouble loading our config file. Error: $errorMessage" -logLevel 'critical'
+    Complete-Script 1
+    exit 1
+}
+#endregion Load Config
+
+
+#region Gather Metrics for each FA and FB defined in our config
+$finalResults =@()
+
+foreach ($item in $configJSON.ArrayMapping) {
+    Write-PurePSSimpleLog -information "Connecting to $($item.name) which is a $($item.type) to gather metrics" -logLevel 'Informational'
+    $AuthHeader = Connect-PurePSArray -array $item  
+
+    if ($item.type -eq "FlashArray") {
+        $results = Invoke-RestMethod -SkipCertificateCheck -Method Get -Uri "https://$($item.Name)/api/2.25/volumes" -Headers $AuthHeader | Select-Object -ExpandProperty items
+
+        foreach ($result in $results) {
+            $finalResults += [PSCustomObject]@{
+                ArrayName             = $item.name
+                ArrayType             = $item.type
+                VolumeName            = $result.name
+                SpaceProvisioned      = $result.space.total_provisioned
+            }
+        }
+    }
+    if ($item.type -eq "FlashBlade") {
+      $results = Invoke-RestMethod -SkipCertificateCheck -Method Get -Uri "https://$($item.Name)/api/2.12/file-systems" -Headers $AuthHeader | Select-Object -ExpandProperty items
+        foreach ($result in $results) {
+            $finalResults += [PSCustomObject]@{
+                ArrayName             = $item.name
+                ArrayType             = $item.type
+                VolumeName            = $result.name
+                SpaceProvisioned      = $result.provisioned
+            }
+        }
+    }
+}
+
+#region Gather Metrics for each FA and FB defined in our config
+
+#region handleOutput
+#FinalResults is our Powershell resulting object, we can export this in Json, Csv, or any format you like.  Or pipe to another API for consumption from here
+$finalResults|ogv
+
+#endregion handleOutput

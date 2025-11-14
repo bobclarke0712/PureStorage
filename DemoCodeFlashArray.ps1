@@ -4,7 +4,7 @@
 # Ver 1.2
 # Added several commonly used code snippets that can be put together to more easily write your own automations
 # Added volume tagging examples
-
+# Link to using Fusion with PowerShell: https://github.com/PureStorage-OpenConnect/fusion-example-code/blob/main/powershell/Connect-FAApi.ps1
 # ------------------------*** SETUP ***-------------------------------
 
 

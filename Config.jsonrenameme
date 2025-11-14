@@ -1,0 +1,19 @@
+{
+    "ArrayMapping": [
+        {
+            "Name": "gse-array05",
+            "Type": "FlashArray",
+            "Token": "12349bd8-8bc1-3bac-1234-fac2c4181234"
+        },
+        {
+            "Name": "gse-array06",
+            "Type": "FlashArray",
+            "Token": "1234ad15-21d4-ce40-1234-b2221c721234"
+        },
+         {
+            "Name": "gse-FB04",
+            "Type": "FlashBlade",
+            "Token": "T-47902cf3-d447-46f2-1234-57085bcb1234"
+        }
+    ]
+}
